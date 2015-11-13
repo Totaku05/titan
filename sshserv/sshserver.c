@@ -14,16 +14,17 @@ int cds[COUNT];
 
 void *func(void *arg)
 {
-	int id = (int)arg;
+	int id = *((int *)arg);
 
 	pthread_mutex_lock(&mut[id]);
 	pthread_mutex_lock(&mut[id]);
 
 	while(1)
 	{
-		char command[100];
-		recv(cds[id], &command, syzeof(command), 0);
-		command[98] = '\0';
+		char command[256];
+		bzero(command, 256);
+		recv(cds[id], &command, sizeof(command), 0);
+		command[254] = '\0';
 		if(!strcmp(command, "stop\0"))
 			break;
 		FILE *process = popen(command, "r");
@@ -47,7 +48,7 @@ void initialize()
 	int i;
 	for(i = 0; i < COUNT; i++)
 	{
-		pthread_create(&threads[i], NULL, func, (void *)(int int) i);
+		pthread_create(&threads[i], NULL, func, (void *) &i);
 		pthread_mutex_init(&mut[i], NULL);
 	}
 }
@@ -97,14 +98,14 @@ int main() {
 			if(!pthread_mutex_trylock(&mut[i]))
 			{
 				cds[i] = cd;
-				pthread_unlock(&mut[i]);
+				pthread_mutex_unlock(&mut[i]);
 				return;
 			}
 			else
 			{
-				pthread_unlock(&mut[i]);
+				pthread_mutex_unlock(&mut[i]);
 				pthread_kill(threads[i], 0);
-				pthread_create(&threads[i], NULL, func, (void *)(int int) i);
+				pthread_create(&threads[i], NULL, func, (void *) &i);
 			}
 		}
 
