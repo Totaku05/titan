@@ -1,7 +1,8 @@
 all: compile
 
 compile:
-	gcc -o sshserver sshserver.c
+	gcc -pthread -o sshserver sshserver.c
+	gcc -o client client.c
 
 clean:
 	rm sshserver

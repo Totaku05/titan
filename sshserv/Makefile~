@@ -1,7 +1,7 @@
 all: compile
 
 compile:
-	gcc -o httpserver httpserver.c
+	gcc -pthread -o sshserver sshserver.c
 
 clean:
-	rm httpserver
+	rm sshserver
